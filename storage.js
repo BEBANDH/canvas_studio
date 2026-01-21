@@ -1,14 +1,8 @@
 const StorageManager = {
     saveTimer: null,
-    boardCache: {}, // Cache for loaded boards
-    pendingPatches: {}, // Track pending element updates for batch saving
+    boardCache: {},
+    pendingPatches: {},
 
-    // === LAZY LOADING METHODS ===
-
-    /**
-     * Load only metadata (IDs and titles) for instant startup
-     * This makes initial app launch nearly instant
-     */
     loadMetadata() {
         try {
             const data = localStorage.getItem('moodboards');
@@ -18,12 +12,10 @@ const StorageManager = {
 
             const parsed = JSON.parse(data);
 
-            // Check if new format (with metadata key)
             if (parsed.metadata && parsed.boards) {
                 return parsed.metadata;
             }
 
-            // Old format - migrate it
             return this.migrateAndGetMetadata();
         } catch (e) {
             console.error("Error loading metadata:", e);
@@ -31,11 +23,7 @@ const StorageManager = {
         }
     },
 
-    /**
-     * Load full board data for a specific board (on-demand)
-     */
     loadBoardData(boardId) {
-        // Check cache first
         if (this.boardCache[boardId]) {
             return this.boardCache[boardId];
         }
@@ -46,13 +34,11 @@ const StorageManager = {
 
             const parsed = JSON.parse(data);
 
-            // New format
             if (parsed.boards && parsed.boards[boardId]) {
                 this.boardCache[boardId] = parsed.boards[boardId];
                 return parsed.boards[boardId];
             }
 
-            // Old format (fallback)
             if (parsed[boardId]) {
                 this.boardCache[boardId] = parsed[boardId];
                 return parsed[boardId];
@@ -65,9 +51,6 @@ const StorageManager = {
         }
     },
 
-    /**
-     * Migrate old format to new lazy-loading format
-     */
     migrateAndGetMetadata() {
         try {
             const data = localStorage.getItem('moodboards');
@@ -79,12 +62,10 @@ const StorageManager = {
 
             const oldFormat = JSON.parse(data);
 
-            // Already new format
             if (oldFormat.metadata && oldFormat.boards) {
                 return oldFormat.metadata;
             }
 
-            // Convert old to new
             const metadata = [];
             const boards = {};
 
@@ -99,7 +80,6 @@ const StorageManager = {
                 };
             });
 
-            // Save in new format
             const newFormat = { metadata, boards };
             localStorage.setItem('moodboards', JSON.stringify(newFormat));
 
@@ -110,14 +90,7 @@ const StorageManager = {
         }
     },
 
-    // === DIFFERENTIAL SAVING (PATCH SYSTEM) ===
-
-    /**
-     * Save only specific element changes (differential update)
-     * This is 80-90% faster than saving entire state
-     */
     savePatch(boardId, elementId, changes) {
-        // Track the patch
         if (!this.pendingPatches[boardId]) {
             this.pendingPatches[boardId] = {};
         }
@@ -125,17 +98,12 @@ const StorageManager = {
             this.pendingPatches[boardId][elementId] = {};
         }
 
-        // Merge changes
         Object.assign(this.pendingPatches[boardId][elementId], changes);
 
-        // Debounced batch save
         if (this.saveTimer) clearTimeout(this.saveTimer);
         this.saveTimer = setTimeout(() => this.flushPatches(), 200);
     },
 
-    /**
-     * Apply all pending patches to localStorage
-     */
     flushPatches() {
         if (Object.keys(this.pendingPatches).length === 0) return;
 
@@ -143,13 +111,11 @@ const StorageManager = {
             const data = localStorage.getItem('moodboards');
             const state = data ? JSON.parse(data) : { metadata: [], boards: {} };
 
-            // Ensure new format
             if (!state.boards) {
                 state.boards = {};
                 state.metadata = [];
             }
 
-            // Apply patches
             Object.keys(this.pendingPatches).forEach(boardId => {
                 if (!state.boards[boardId]) return;
 
@@ -160,7 +126,6 @@ const StorageManager = {
                     }
                 });
 
-                // Update cache
                 if (this.boardCache[boardId]) {
                     Object.keys(this.pendingPatches[boardId]).forEach(elementId => {
                         const element = this.boardCache[boardId].elements.find(el => el.id == elementId);
@@ -172,24 +137,19 @@ const StorageManager = {
             });
 
             localStorage.setItem('moodboards', JSON.stringify(state));
-            this.pendingPatches = {}; // Clear patches
+            this.pendingPatches = {};
             console.log("Patches applied successfully.");
         } catch (e) {
             console.error("Patch save failed:", e);
         }
     },
 
-    /**
-     * Full state save (used for structural changes like add/delete board)
-     */
     saveFullState(boards) {
         try {
-            // Convert to new format if needed
             let state;
             if (boards.metadata && boards.boards) {
                 state = boards;
             } else {
-                // Old format object passed in
                 const metadata = [];
                 const boardsObj = {};
 
@@ -211,24 +171,18 @@ const StorageManager = {
         }
     },
 
-    /**
-     * Add or update a board
-     */
     updateBoard(boardId, boardData) {
         try {
             const data = localStorage.getItem('moodboards');
             const state = data ? JSON.parse(data) : { metadata: [], boards: {} };
 
-            // Ensure new format
             if (!state.boards) {
                 state.boards = {};
                 state.metadata = [];
             }
 
-            // Update or add board
             state.boards[boardId] = boardData;
 
-            // Update metadata
             const metaIndex = state.metadata.findIndex(m => m.id === boardId);
             if (metaIndex >= 0) {
                 state.metadata[metaIndex].title = boardData.title;
@@ -236,7 +190,6 @@ const StorageManager = {
                 state.metadata.push({ id: boardId, title: boardData.title });
             }
 
-            // Update cache
             this.boardCache[boardId] = boardData;
 
             localStorage.setItem('moodboards', JSON.stringify(state));
@@ -245,9 +198,6 @@ const StorageManager = {
         }
     },
 
-    /**
-     * Delete a board
-     */
     deleteBoard(boardId) {
         try {
             const data = localStorage.getItem('moodboards');
@@ -260,7 +210,6 @@ const StorageManager = {
                 delete state[boardId];
             }
 
-            // Clear cache
             delete this.boardCache[boardId];
 
             localStorage.setItem('moodboards', JSON.stringify(state));
@@ -268,8 +217,6 @@ const StorageManager = {
             console.error("Board deletion failed:", e);
         }
     },
-
-    // === LEGACY METHODS (kept for compatibility) ===
 
     exportJSON(board) {
         const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(board));
@@ -282,22 +229,19 @@ const StorageManager = {
     },
 
     exportPDF(canvasElement, title) {
-        console.log('Starting PDF export...');
+        console.log('Starting PNG export...');
 
-        // Get all canvas elements
         const elements = canvasElement.querySelectorAll('.canvas-element');
         console.log('Found elements:', elements.length);
 
         if (elements.length === 0) {
-            alert('No elements to export! Add some text or images to your board first.');
+            alert('No elements to export! Add some text or images first.');
             return;
         }
 
-        // Hide UI controls temporarily
         const controls = canvasElement.querySelectorAll('.del-btn, .color-picker-btn, .resize-handle, .selection-box');
         controls.forEach(ctrl => ctrl.style.display = 'none');
 
-        // Calculate bounds
         let minX = Infinity, minY = Infinity, maxX = 0, maxY = 0;
 
         elements.forEach(el => {
@@ -312,80 +256,63 @@ const StorageManager = {
             maxY = Math.max(maxY, y + h);
         });
 
-        // Add padding
         const padding = 50;
         const width = (maxX - minX) + (padding * 2);
         const height = (maxY - minY) + (padding * 2);
 
-        console.log('PDF dimensions:', width, 'x', height);
+        console.log('Export dimensions:', width, 'x', height);
 
-        // Create a wrapper div for export
         const exportWrapper = document.createElement('div');
-        exportWrapper.style.position = 'relative';
-        exportWrapper.style.width = width + 'px';
-        exportWrapper.style.height = height + 'px';
-        exportWrapper.style.backgroundColor = '#ffffff';
-        exportWrapper.style.padding = '0';
-        exportWrapper.style.margin = '0';
+        exportWrapper.style.cssText = `
+            position: absolute;
+            left: -9999px;
+            top: 0;
+            width: ${width}px;
+            height: ${height}px;
+            background-color: #ffffff;
+        `;
 
-        // Clone elements into wrapper
         elements.forEach(el => {
             const clone = el.cloneNode(true);
-
-            // Remove controls from clone
             clone.querySelectorAll('.del-btn, .color-picker-btn, .resize-handle').forEach(c => c.remove());
 
-            // Position relative to bounds
             const x = parseFloat(el.style.left) || 0;
             const y = parseFloat(el.style.top) || 0;
 
             clone.style.position = 'absolute';
             clone.style.left = (x - minX + padding) + 'px';
             clone.style.top = (y - minY + padding) + 'px';
-            clone.style.border = 'none';
             clone.classList.remove('selected', 'multi-selected');
 
             exportWrapper.appendChild(clone);
         });
 
-        // Temporarily add to document
-        exportWrapper.style.position = 'absolute';
-        exportWrapper.style.left = '-9999px';
-        exportWrapper.style.top = '0';
         document.body.appendChild(exportWrapper);
 
-        // Small delay for DOM
         setTimeout(() => {
-            // PDF options
-            const opt = {
-                margin: 0,
-                filename: (title || 'board') + '.pdf',
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: {
-                    scale: 2,
-                    useCORS: true,
-                    logging: true,
-                    backgroundColor: '#ffffff',
-                    width: width,
-                    height: height
-                },
-                jsPDF: {
-                    unit: 'px',
-                    format: [width, height],
-                    orientation: width > height ? 'landscape' : 'portrait'
-                }
-            };
+            html2canvas(exportWrapper, {
+                scale: 2,
+                useCORS: true,
+                backgroundColor: '#ffffff',
+                width: width,
+                height: height
+            }).then(canvas => {
+                canvas.toBlob(blob => {
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.download = (title || 'board') + '.png';
+                    link.href = url;
+                    link.click();
+                    URL.revokeObjectURL(url);
 
-            // Generate PDF
-            html2pdf().from(exportWrapper).set(opt).save().then(() => {
-                console.log('PDF generated successfully');
-                // Cleanup
-                document.body.removeChild(exportWrapper);
-                controls.forEach(ctrl => ctrl.style.display = '');
+                    console.log('PNG exported successfully!');
+
+                    document.body.removeChild(exportWrapper);
+                    controls.forEach(ctrl => ctrl.style.display = '');
+                }, 'image/png', 1.0);
             }).catch(err => {
-                console.error('PDF generation failed:', err);
-                alert('PDF export failed: ' + err.message);
-                // Cleanup on error
+                console.error('Export failed:', err);
+                alert('Export failed: ' + err.message);
                 if (document.body.contains(exportWrapper)) {
                     document.body.removeChild(exportWrapper);
                 }

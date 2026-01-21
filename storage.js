@@ -282,38 +282,97 @@ const StorageManager = {
     },
 
     exportPDF(element, title) {
-        // Temporarily hide UI elements
-        const deleteButtons = element.querySelectorAll('.del-btn, .color-picker-btn, .resize-handle');
-        deleteButtons.forEach(btn => btn.style.display = 'none');
+        // Get all canvas elements
+        const canvasElements = element.querySelectorAll('.canvas-element');
 
-        // Store original background
-        const originalBg = element.style.backgroundColor;
-        element.style.backgroundColor = 'transparent';
+        if (canvasElements.length === 0) {
+            alert('No elements to export! Add some text or images first.');
+            return;
+        }
 
+        // Calculate bounding box of all elements
+        let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+
+        canvasElements.forEach(el => {
+            const x = parseFloat(el.dataset.x) || 0;
+            const y = parseFloat(el.dataset.y) || 0;
+            const w = parseFloat(el.style.width) || 0;
+            const h = parseFloat(el.style.height) || 0;
+
+            minX = Math.min(minX, x);
+            minY = Math.min(minY, y);
+            maxX = Math.max(maxX, x + w);
+            maxY = Math.max(maxY, y + h);
+        });
+
+        // Add padding
+        const padding = 40;
+        minX -= padding;
+        minY -= padding;
+        maxX += padding;
+        maxY += padding;
+
+        const width = maxX - minX;
+        const height = maxY - minY;
+
+        // Create temporary container
+        const tempContainer = document.createElement('div');
+        tempContainer.style.position = 'absolute';
+        tempContainer.style.left = '-9999px';
+        tempContainer.style.top = '0';
+        tempContainer.style.width = width + 'px';
+        tempContainer.style.height = height + 'px';
+        tempContainer.style.backgroundColor = 'white';
+        document.body.appendChild(tempContainer);
+
+        // Clone and position elements
+        canvasElements.forEach(el => {
+            const clone = el.cloneNode(true);
+
+            // Remove UI elements
+            clone.querySelectorAll('.del-btn, .color-picker-btn, .resize-handle').forEach(btn => btn.remove());
+
+            // Adjust position relative to bounding box
+            const x = parseFloat(el.dataset.x) || 0;
+            const y = parseFloat(el.dataset.y) || 0;
+
+            clone.style.position = 'absolute';
+            clone.style.left = (x - minX) + 'px';
+            clone.style.top = (y - minY) + 'px';
+            clone.style.transform = 'none';
+
+            tempContainer.appendChild(clone);
+        });
+
+        // PDF options
         const opt = {
-            margin: 0.3,
+            margin: 0.5,
             filename: title + '.pdf',
-            image: { type: 'jpeg', quality: 0.85 },
+            image: { type: 'jpeg', quality: 0.95 },
             html2canvas: {
-                scale: 1.5,
-                backgroundColor: null,
+                scale: 2,
+                backgroundColor: '#ffffff',
                 useCORS: true,
                 logging: false,
-                removeContainer: true
+                width: width,
+                height: height
             },
             jsPDF: {
-                unit: 'in',
-                format: 'a4',
-                orientation: 'landscape',
+                unit: 'px',
+                format: [width, height],
+                orientation: width > height ? 'landscape' : 'portrait',
                 compress: true
-            },
-            pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+            }
         };
 
-        html2pdf().set(opt).from(element).save().then(() => {
-            // Restore UI elements
-            deleteButtons.forEach(btn => btn.style.display = '');
-            element.style.backgroundColor = originalBg;
+        // Generate PDF
+        html2pdf().set(opt).from(tempContainer).save().then(() => {
+            // Cleanup
+            tempContainer.remove();
+        }).catch(err => {
+            console.error('PDF export error:', err);
+            tempContainer.remove();
+            alert('PDF export failed. Please try again.');
         });
     }
 };

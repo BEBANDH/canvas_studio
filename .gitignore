@@ -1,0 +1,27 @@
+# Ignore system files
+.DS_Store
+Thumbs.db
+
+# Ignore IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Ignore backup files
+*.backup
+*~
+
+# Ignore test files
+test-suite.html
+walkthrough.md
+README-PERFORMANCE.md
+
+# Ignore brain/task files
+.gemini/
+task.md
+implementation_plan.md
+
+# Ignore node modules (if any)
+node_modules/
+package-lock.json

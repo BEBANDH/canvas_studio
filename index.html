@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎨</text></svg>">
+    <title>Canvas Studio - Visual Moodboard Creator</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="context-menu.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="sidebar-content">
+                <div class="app-branding">
+                    <div class="app-icon">🎨</div>
+                    <h2>Canvas</h2>
+                </div>
+
+                <div class="sidebar-actions">
+                    <button id="exportJsonBtn" class="sidebar-btn" title="Export JSON">
+                        <span class="btn-icon">�</span>
+                        <span class="btn-label">Export</span>
+                    </button>
+                    <button id="importBtn" class="sidebar-btn" title="Import JSON">
+                        <span class="btn-icon">�</span>
+                        <span class="btn-label">Import</span>
+                    </button>
+                    <input type="file" id="fileInput" hidden accept=".json">
+                    <button id="exportPdfBtn" class="sidebar-btn" title="Export PDF">
+                        <span class="btn-icon">📄</span>
+                        <span class="btn-label">PDF</span>
+                    </button>
+                    <button id="themeToggleBtn" class="sidebar-btn theme-btn" title="Toggle Theme">
+                        <span class="btn-icon" id="themeIcon">🌙</span>
+                        <span class="btn-label" id="themeLabel">Dark</span>
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <main class="workspace">
+            <header class="workspace-header">
+                <button id="newBoardBtn" class="header-btn" title="New Board">+</button>
+
+                <select id="boardSelector" class="board-selector">
+                    <option value="">Select Board</option>
+                </select>
+
+                <div class="title-group">
+                    <h1 id="activeBoardTitle">Untitled Board</h1>
+                    <button id="renameBoardBtn" class="header-icon-btn" title="Rename Board">✎</button>
+                    <button id="deleteBoardBtn" class="header-icon-btn delete-btn" title="Delete Board">🗑</button>
+                </div>
+
+                <div class="controls-group">
+                    <div class="status-indicator" id="saveStatus">Synced</div>
+                </div>
+            </header>
+
+            <div id="canvas" class="canvas">
+                <div id="selectionBox" class="selection-box"></div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Color Picker -->
+    <div id="colorPicker" class="color-picker hidden">
+        <div class="color-option" data-color="default" style="background: #1e1e1e;" title="Default"></div>
+        <div class="color-option" data-color="yellow" style="background: #fef3c7;" title="Yellow"></div>
+        <div class="color-option" data-color="purple" style="background: #e9d5ff;" title="Purple"></div>
+        <div class="color-option" data-color="blue" style="background: #dbeafe;" title="Blue"></div>
+        <div class="color-option" data-color="green" style="background: #d1fae5;" title="Green"></div>
+        <div class="color-option" data-color="pink" style="background: #fce7f3;" title="Pink"></div>
+        <div class="color-option" data-color="orange" style="background: #fed7aa;" title="Orange"></div>
+    </div>
+
+    <!-- Context Menu -->
+    <div id="contextMenu" class="context-menu">
+        <div class="context-menu-item" data-action="bring-forward">↑ Bring Forward</div>
+        <div class="context-menu-item" data-action="send-backward">↓ Send Backward</div>
+        <div class="context-menu-divider"></div>
+        <div class="context-menu-item" data-action="duplicate">⎘ Duplicate</div>
+        <div class="context-menu-divider"></div>
+        <div class="context-menu-item danger" data-action="delete">🗑 Delete</div>
+    </div>
+
+    <script src="storage.js"></script>
+    <script src="js/state.js"></script>
+    <script src="js/selection-manager.js"></script>
+    <script src="js/element-manager.js"></script>
+    <script src="js/board-manager.js"></script>
+    <script src="js/drag-manager.js"></script>
+    <script src="js/context-menu.js"></script>
+    <script src="js/settings-manager.js"></script>
+    <script src="js/event-manager.js"></script>
+    <script src="js/main.js"></script>
+</body>
+
+</html>

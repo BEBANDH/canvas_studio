@@ -281,23 +281,30 @@ const StorageManager = {
         downloadAnchorNode.remove();
     },
 
-    exportPDF(element, title) {
-        // Get all canvas elements
-        const canvasElements = element.querySelectorAll('.canvas-element');
+    exportPDF(canvasElement, title) {
+        console.log('Starting PDF export...');
 
-        if (canvasElements.length === 0) {
-            alert('No elements to export! Add some text or images first.');
+        // Get all canvas elements
+        const elements = canvasElement.querySelectorAll('.canvas-element');
+        console.log('Found elements:', elements.length);
+
+        if (elements.length === 0) {
+            alert('No elements to export! Add some text or images to your board first.');
             return;
         }
 
-        // Calculate bounding box of all elements
-        let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+        // Hide UI controls temporarily
+        const controls = canvasElement.querySelectorAll('.del-btn, .color-picker-btn, .resize-handle, .selection-box');
+        controls.forEach(ctrl => ctrl.style.display = 'none');
 
-        canvasElements.forEach(el => {
+        // Calculate bounds
+        let minX = Infinity, minY = Infinity, maxX = 0, maxY = 0;
+
+        elements.forEach(el => {
             const x = parseFloat(el.dataset.x) || 0;
             const y = parseFloat(el.dataset.y) || 0;
-            const w = parseFloat(el.style.width) || 0;
-            const h = parseFloat(el.style.height) || 0;
+            const w = parseFloat(el.style.width) || 100;
+            const h = parseFloat(el.style.height) || 100;
 
             minX = Math.min(minX, x);
             minY = Math.min(minY, y);
@@ -306,73 +313,79 @@ const StorageManager = {
         });
 
         // Add padding
-        const padding = 40;
-        minX -= padding;
-        minY -= padding;
-        maxX += padding;
-        maxY += padding;
+        const padding = 50;
+        const width = (maxX - minX) + (padding * 2);
+        const height = (maxY - minY) + (padding * 2);
 
-        const width = maxX - minX;
-        const height = maxY - minY;
+        console.log('PDF dimensions:', width, 'x', height);
 
-        // Create temporary container
-        const tempContainer = document.createElement('div');
-        tempContainer.style.position = 'absolute';
-        tempContainer.style.left = '-9999px';
-        tempContainer.style.top = '0';
-        tempContainer.style.width = width + 'px';
-        tempContainer.style.height = height + 'px';
-        tempContainer.style.backgroundColor = 'white';
-        document.body.appendChild(tempContainer);
+        // Create a wrapper div for export
+        const exportWrapper = document.createElement('div');
+        exportWrapper.style.position = 'relative';
+        exportWrapper.style.width = width + 'px';
+        exportWrapper.style.height = height + 'px';
+        exportWrapper.style.backgroundColor = '#ffffff';
+        exportWrapper.style.padding = '0';
+        exportWrapper.style.margin = '0';
 
-        // Clone and position elements
-        canvasElements.forEach(el => {
+        // Clone elements into wrapper
+        elements.forEach(el => {
             const clone = el.cloneNode(true);
 
-            // Remove UI elements
-            clone.querySelectorAll('.del-btn, .color-picker-btn, .resize-handle').forEach(btn => btn.remove());
+            // Remove controls from clone
+            clone.querySelectorAll('.del-btn, .color-picker-btn, .resize-handle').forEach(c => c.remove());
 
-            // Adjust position relative to bounding box
+            // Position relative to bounds
             const x = parseFloat(el.dataset.x) || 0;
             const y = parseFloat(el.dataset.y) || 0;
 
             clone.style.position = 'absolute';
-            clone.style.left = (x - minX) + 'px';
-            clone.style.top = (y - minY) + 'px';
-            clone.style.transform = 'none';
+            clone.style.left = (x - minX + padding) + 'px';
+            clone.style.top = (y - minY + padding) + 'px';
+            clone.style.border = 'none';
+            clone.classList.remove('selected', 'multi-selected');
 
-            tempContainer.appendChild(clone);
+            exportWrapper.appendChild(clone);
         });
+
+        // Temporarily add to document
+        exportWrapper.style.position = 'fixed';
+        exportWrapper.style.left = '-10000px';
+        exportWrapper.style.top = '0';
+        document.body.appendChild(exportWrapper);
 
         // PDF options
         const opt = {
-            margin: 0.5,
-            filename: title + '.pdf',
-            image: { type: 'jpeg', quality: 0.95 },
+            margin: 10,
+            filename: (title || 'board') + '.pdf',
+            image: { type: 'jpeg', quality: 0.98 },
             html2canvas: {
                 scale: 2,
-                backgroundColor: '#ffffff',
                 useCORS: true,
-                logging: false,
-                width: width,
-                height: height
+                logging: true,
+                backgroundColor: '#ffffff'
             },
             jsPDF: {
-                unit: 'px',
+                unit: 'pt',
                 format: [width, height],
-                orientation: width > height ? 'landscape' : 'portrait',
-                compress: true
+                orientation: width > height ? 'l' : 'p'
             }
         };
 
         // Generate PDF
-        html2pdf().set(opt).from(tempContainer).save().then(() => {
+        html2pdf().from(exportWrapper).set(opt).save().then(() => {
+            console.log('PDF generated successfully');
             // Cleanup
-            tempContainer.remove();
+            document.body.removeChild(exportWrapper);
+            controls.forEach(ctrl => ctrl.style.display = '');
         }).catch(err => {
-            console.error('PDF export error:', err);
-            tempContainer.remove();
-            alert('PDF export failed. Please try again.');
+            console.error('PDF generation failed:', err);
+            alert('PDF export failed: ' + err.message);
+            // Cleanup on error
+            if (document.body.contains(exportWrapper)) {
+                document.body.removeChild(exportWrapper);
+            }
+            controls.forEach(ctrl => ctrl.style.display = '');
         });
     }
 };

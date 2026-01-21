@@ -301,8 +301,8 @@ const StorageManager = {
         let minX = Infinity, minY = Infinity, maxX = 0, maxY = 0;
 
         elements.forEach(el => {
-            const x = parseFloat(el.dataset.x) || 0;
-            const y = parseFloat(el.dataset.y) || 0;
+            const x = parseFloat(el.style.left) || 0;
+            const y = parseFloat(el.style.top) || 0;
             const w = parseFloat(el.style.width) || 100;
             const h = parseFloat(el.style.height) || 100;
 
@@ -336,8 +336,8 @@ const StorageManager = {
             clone.querySelectorAll('.del-btn, .color-picker-btn, .resize-handle').forEach(c => c.remove());
 
             // Position relative to bounds
-            const x = parseFloat(el.dataset.x) || 0;
-            const y = parseFloat(el.dataset.y) || 0;
+            const x = parseFloat(el.style.left) || 0;
+            const y = parseFloat(el.style.top) || 0;
 
             clone.style.position = 'absolute';
             clone.style.left = (x - minX + padding) + 'px';

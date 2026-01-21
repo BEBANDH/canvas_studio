@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>PDF Export Test</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        body {
+            font-family: Arial;
+            padding: 20px;
+        }
+
+        .test-box {
+            width: 300px;
+            height: 200px;
+            background: #4CAF50;
+            color: white;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>PDF Export Test</h1>
+    <p>This is a simple test to see if html2pdf works at all.</p>
+
+    <div class="test-box" id="testContent">
+        <h2>Test Content</h2>
+        <p>This is a green box with some text.</p>
+        <p>If PDF export works, you should see this in the PDF.</p>
+    </div>
+
+    <button onclick="testPDF()">Test PDF Export</button>
+
+    <script>
+        function testPDF() {
+            console.log('Testing PDF export...');
+            const element = document.getElementById('testContent');
+
+            const opt = {
+                margin: 10,
+                filename: 'test.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            html2pdf().from(element).set(opt).save()
+                .then(() => console.log('PDF created!'))
+                .catch(err => console.error('PDF failed:', err));
+        }
+    </script>
+</body>
+
+</html>

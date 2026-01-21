@@ -349,43 +349,48 @@ const StorageManager = {
         });
 
         // Temporarily add to document
-        exportWrapper.style.position = 'fixed';
-        exportWrapper.style.left = '-10000px';
+        exportWrapper.style.position = 'absolute';
+        exportWrapper.style.left = '-9999px';
         exportWrapper.style.top = '0';
         document.body.appendChild(exportWrapper);
 
-        // PDF options
-        const opt = {
-            margin: 10,
-            filename: (title || 'board') + '.pdf',
-            image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: {
-                scale: 2,
-                useCORS: true,
-                logging: true,
-                backgroundColor: '#ffffff'
-            },
-            jsPDF: {
-                unit: 'pt',
-                format: [width, height],
-                orientation: width > height ? 'l' : 'p'
-            }
-        };
+        // Small delay for DOM
+        setTimeout(() => {
+            // PDF options
+            const opt = {
+                margin: 0,
+                filename: (title || 'board') + '.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: {
+                    scale: 2,
+                    useCORS: true,
+                    logging: true,
+                    backgroundColor: '#ffffff',
+                    width: width,
+                    height: height
+                },
+                jsPDF: {
+                    unit: 'px',
+                    format: [width, height],
+                    orientation: width > height ? 'landscape' : 'portrait'
+                }
+            };
 
-        // Generate PDF
-        html2pdf().from(exportWrapper).set(opt).save().then(() => {
-            console.log('PDF generated successfully');
-            // Cleanup
-            document.body.removeChild(exportWrapper);
-            controls.forEach(ctrl => ctrl.style.display = '');
-        }).catch(err => {
-            console.error('PDF generation failed:', err);
-            alert('PDF export failed: ' + err.message);
-            // Cleanup on error
-            if (document.body.contains(exportWrapper)) {
+            // Generate PDF
+            html2pdf().from(exportWrapper).set(opt).save().then(() => {
+                console.log('PDF generated successfully');
+                // Cleanup
                 document.body.removeChild(exportWrapper);
-            }
-            controls.forEach(ctrl => ctrl.style.display = '');
-        });
+                controls.forEach(ctrl => ctrl.style.display = '');
+            }).catch(err => {
+                console.error('PDF generation failed:', err);
+                alert('PDF export failed: ' + err.message);
+                // Cleanup on error
+                if (document.body.contains(exportWrapper)) {
+                    document.body.removeChild(exportWrapper);
+                }
+                controls.forEach(ctrl => ctrl.style.display = '');
+            });
+        }, 100);
     }
 };

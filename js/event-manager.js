@@ -55,6 +55,18 @@ function setupCanvasEventDelegation() {
 
     // Mouse down for dragging, resizing, and selection box
     canvas.addEventListener('mousedown', (e) => {
+        // Check for arrow anchor click
+        const anchor = e.target.closest('.arrow-anchor');
+        if (anchor) {
+            const element = anchor.closest('.canvas-element');
+            if (element) {
+                e.preventDefault();
+                e.stopPropagation();
+                ArrowManager.startArrowDrawing(element, anchor);
+            }
+            return;
+        }
+
         const resizeHandle = e.target.closest('.resize-handle');
         if (resizeHandle) {
             const element = resizeHandle.closest('.canvas-element');
@@ -133,6 +145,37 @@ function setupHeaderAutoHide() {
 
 function setupEventListeners() {
     setupCanvasEventDelegation();
+
+    // Arrow Mode Toggle
+    document.getElementById('arrowModeBtn').onclick = () => {
+        const isActive = ArrowManager.toggleArrowMode();
+        const btn = document.getElementById('arrowModeBtn');
+        if (isActive) {
+            btn.classList.add('active');
+        } else {
+            btn.classList.remove('active');
+        }
+    };
+
+    // Global mousemove for arrow drawing
+    document.addEventListener('mousemove', (e) => {
+        if (ArrowManager.isDrawingArrow) {
+            ArrowManager.updateTempArrow(e.clientX, e.clientY);
+        }
+    });
+
+    // Global mouseup for finishing arrow drawing
+    document.addEventListener('mouseup', (e) => {
+        if (ArrowManager.isDrawingArrow) {
+            const anchor = e.target.closest('.arrow-anchor');
+            if (anchor) {
+                const targetElement = anchor.closest('.canvas-element');
+                ArrowManager.finishArrowDrawing(targetElement, anchor);
+            } else {
+                ArrowManager.cancelArrowDrawing();
+            }
+        }
+    });
 
     // Theme toggle
     document.getElementById('themeToggleBtn').onclick = SettingsManager.toggleTheme;
@@ -319,7 +362,7 @@ function setupEventListeners() {
 
     // Export/Import
     document.getElementById('exportJsonBtn').onclick = () => StorageManager.exportJSON(AppState.activeBoard);
-    document.getElementById('exportPdfBtn').onclick = () => StorageManager.exportPDF(document.getElementById('canvas'), AppState.activeBoard.title);
+    document.getElementById('exportPdfBtn').onclick = () => StorageManager.exportViewport(document.getElementById('canvas'), AppState.activeBoard.title);
 
     document.getElementById('importBtn').onclick = () => document.getElementById('fileInput').click();
     document.getElementById('fileInput').onchange = (e) => {

@@ -63,6 +63,11 @@ function createElementDOM(data) {
 }
 
 function removeElement(id) {
+    // Delete arrows connected to this element
+    if (typeof ArrowManager !== 'undefined') {
+        ArrowManager.deleteArrowsForElement(id);
+    }
+
     AppState.activeBoard.elements = AppState.activeBoard.elements.filter(e => e.id != id);
     StorageManager.updateBoard(AppState.activeBoardId, AppState.activeBoard);
     BoardManager.loadBoard(AppState.activeBoardId);
@@ -163,10 +168,18 @@ function renderElements() {
     elements.forEach(el => el.remove());
 
     if (AppState.activeBoard && AppState.activeBoard.elements) {
-        AppState.activeBoard.elements.forEach(data => {
-            const domElement = createElementDOM(data);
-            canvas.appendChild(domElement);
-        });
+        // Render non-arrow elements first
+        AppState.activeBoard.elements
+            .filter(data => data.type !== 'arrow')
+            .forEach(data => {
+                const domElement = createElementDOM(data);
+                canvas.appendChild(domElement);
+            });
+
+        // Render arrows after elements are in DOM
+        if (typeof ArrowManager !== 'undefined') {
+            ArrowManager.renderAllArrows();
+        }
     }
 }
 

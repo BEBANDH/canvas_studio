@@ -97,6 +97,14 @@ function initKeyboardShortcuts() {
             addImageElement();
             return;
         }
+
+        // A: Toggle arrow mode
+        if (key === 'a') {
+            e.preventDefault();
+            e.stopPropagation();
+            document.getElementById('arrowModeBtn')?.click();
+            return;
+        }
     }, true); // Use capture phase to intercept before browser
 }
 

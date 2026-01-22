@@ -108,6 +108,11 @@ function handleDragEnd(e) {
                 elementData.x = newX;
                 elementData.y = newY;
             }
+
+            // Update arrows connected to this element
+            if (typeof ArrowManager !== 'undefined') {
+                ArrowManager.updateArrowsForElement(item.id);
+            }
         });
 
         // Save all changes
@@ -135,6 +140,11 @@ function handleDragEnd(e) {
         if (elementData) {
             elementData.x = newX;
             elementData.y = newY;
+        }
+
+        // Update arrows connected to this element
+        if (typeof ArrowManager !== 'undefined') {
+            ArrowManager.updateArrowsForElement(dragState.id);
         }
     }
 
@@ -200,6 +210,11 @@ function handleResizeEnd() {
     if (elementData) {
         elementData.w = w;
         elementData.h = h;
+    }
+
+    // Update arrows connected to this element
+    if (typeof ArrowManager !== 'undefined') {
+        ArrowManager.updateArrowsForElement(resizeState.id);
     }
 
     ElementManager.updateSaveStatus();

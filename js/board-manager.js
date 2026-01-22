@@ -64,17 +64,24 @@ function loadBoard(id) {
     // OPTIMIZATION 3: DOCUMENT FRAGMENTS - Build everything in memory first
     const fragment = document.createDocumentFragment();
 
-    AppState.activeBoard.elements.forEach(el => {
-        try {
-            const domElement = ElementManager.createElementDOM(el);
-            fragment.appendChild(domElement);
-        } catch (e) {
-            console.warn("Skipping corrupted element:", el);
-        }
-    });
+    AppState.activeBoard.elements
+        .filter(el => el.type !== 'arrow') // Exclude arrows from standard DOM creation
+        .forEach(el => {
+            try {
+                const domElement = ElementManager.createElementDOM(el);
+                fragment.appendChild(domElement);
+            } catch (e) {
+                console.warn("Skipping corrupted element:", el);
+            }
+        });
 
     // Single DOM insertion - prevents multiple reflows
     canvas.appendChild(fragment);
+
+    // Render arrows AFTER elements are in the DOM (needed for anchor positioning)
+    if (typeof ArrowManager !== 'undefined') {
+        ArrowManager.renderAllArrows();
+    }
 
     renderBoardList(); // Update dropdown
 }

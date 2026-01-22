@@ -23,6 +23,11 @@ function init() {
         EventManager.setupEventListeners();
         EventManager.setupHeaderAutoHide();
 
+        // Initialize keyboard shortcuts
+        if (typeof KeyboardShortcutsManager !== 'undefined') {
+            KeyboardShortcutsManager.initKeyboardShortcuts();
+        }
+
         console.log("Canvas Studio Initialized Successfully");
     } catch (err) {
         console.error("Initialization error:", err);

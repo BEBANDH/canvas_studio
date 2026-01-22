@@ -951,6 +951,248 @@ body {
 }
 
 
+/* === ARROW STYLES === */
+
+/* Arrow Anchor Points */
+.arrow-anchor {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    background: var(--accent);
+    border: 2px solid var(--bg-deep);
+    border-radius: 50%;
+    cursor: crosshair;
+    opacity: 0;
+    transition: all 0.2s ease;
+    z-index: 1001;
+    pointer-events: none;
+}
+
+.canvas-element.show-anchors .arrow-anchor,
+.canvas.arrow-mode .canvas-element .arrow-anchor {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.arrow-anchor:hover {
+    transform: scale(1.3);
+    box-shadow: 0 0 0 4px rgba(117, 12, 255, 0.3);
+}
+
+/* Anchor positions */
+.anchor-top {
+    top: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.anchor-right {
+    right: -6px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.anchor-bottom {
+    bottom: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.anchor-left {
+    left: -6px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.anchor-top:hover,
+.anchor-bottom:hover {
+    transform: translateX(-50%) scale(1.3);
+}
+
+.anchor-left:hover,
+.anchor-right:hover {
+    transform: translateY(-50%) scale(1.3);
+}
+
+/* Arrow Mode Indicator */
+.canvas.arrow-mode {
+    cursor: crosshair;
+}
+
+.canvas.arrow-mode .canvas-element {
+    cursor: crosshair;
+}
+
+/* Temporary Arrow Line */
+.temp-arrow-line {
+    pointer-events: none;
+    z-index: 999;
+}
+
+/* Arrow Elements */
+.arrow-element {
+    pointer-events: none;
+    z-index: 1;
+    transition: none;
+    /* Removed transition for faster bending */
+}
+
+.arrow-path {
+    transition: none;
+    /* Removed transition for faster bending */
+}
+
+/* Arrow hover state - minimal visual feedback */
+.arrow-element.arrow-hovered .arrow-path {
+    stroke: #8b3dff !important;
+    stroke-width: 2px !important;
+}
+
+/* Arrow selected state */
+.arrow-element.arrow-selected .arrow-path {
+    stroke: #8b3dff !important;
+    stroke-width: 2.5px !important;
+    filter: drop-shadow(0 0 8px rgba(117, 12, 255, 0.7));
+}
+
+/* Arrow delete button */
+.arrow-delete-btn {
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    background: #ff5f56;
+    color: white;
+    border-radius: 50%;
+    display: none;
+    /* Only shown via JS logic */
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    z-index: 1004;
+    /* Higher than control point */
+    pointer-events: auto;
+    border: 2px solid var(--bg-deep);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s ease;
+}
+
+.arrow-delete-btn:hover {
+    background: #ff3b30;
+    transform: translate(-50%, -50%) scale(1.15);
+    box-shadow: 0 4px 12px rgba(255, 95, 86, 0.5);
+}
+
+.arrow-delete-btn:active {
+    transform: translate(-50%, -50%) scale(0.95);
+}
+
+/* Arrow Control Point */
+.arrow-control-point {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    background: #750cff;
+    border: 2px solid #ffffff;
+    border-radius: 50%;
+    cursor: grab;
+    z-index: 1003;
+    pointer-events: auto;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s ease;
+    transform: translate(-50%, -50%);
+}
+
+.arrow-control-point:hover {
+    transform: translate(-50%, -50%) scale(1.3);
+    box-shadow: 0 3px 10px rgba(117, 12, 255, 0.5);
+}
+
+.arrow-control-point.dragging {
+    cursor: grabbing;
+    transform: translate(-50%, -50%) scale(1.5);
+    box-shadow: 0 4px 12px rgba(117, 12, 255, 0.7);
+}
+
+/* Arrow Mode Toggle Button */
+.arrow-mode-btn {
+    width: 36px;
+    height: 36px;
+    background: rgba(30, 30, 30, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--text-main);
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+}
+
+[data-theme="light"] .arrow-mode-btn {
+    background: rgba(250, 250, 250, 0.6);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.arrow-mode-btn:hover,
+.arrow-mode-btn.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--bg-deep);
+    transform: scale(1.1);
+}
+
+/* Arrow Style Selector */
+.arrow-style-selector {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin-top: 8px;
+}
+
+.arrow-style-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid transparent;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 12px;
+}
+
+[data-theme="light"] .arrow-style-option {
+    background: rgba(0, 0, 0, 0.03);
+}
+
+.arrow-style-option:hover {
+    background: rgba(117, 12, 255, 0.1);
+    border-color: var(--accent);
+}
+
+.arrow-style-option.active {
+    background: var(--accent);
+    color: var(--bg-deep);
+    border-color: var(--accent);
+}
+
+.arrow-style-icon {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 /* Responsive adjustments */
 @media (max-width: 1024px) {
     .workspace-header {

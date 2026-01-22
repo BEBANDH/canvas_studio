@@ -18,7 +18,8 @@ const TEXT_COLORS = {
     blue: { bg: '#dbeafe', text: '#1e3a8a' },
     green: { bg: '#d1fae5', text: '#065f46' },
     pink: { bg: '#fce7f3', text: '#831843' },
-    orange: { bg: '#fed7aa', text: '#7c2d12' }
+    orange: { bg: '#fed7aa', text: '#7c2d12' },
+    bw: { bg: '#000000', text: '#ffffff' }
 };
 
 // Export state for other modules

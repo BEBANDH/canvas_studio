@@ -17,7 +17,7 @@ function applyTheme(theme) {
     const themeLabel = document.getElementById('themeLabel');
 
     if (themeIcon) {
-        themeIcon.textContent = theme === 'dark' ? '🌙' : '☀️';
+        themeIcon.className = theme === 'dark' ? 'fas fa-moon' : 'fas fa-sun';
     }
 
     if (themeLabel) {

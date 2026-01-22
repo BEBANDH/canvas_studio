@@ -1,24 +1,45 @@
 // === BOARD MANAGEMENT ===
 
-function renderBoardList() {
-    const boardSelector = document.getElementById('boardSelector');
-    if (!boardSelector) return;
+const boardIcons = ['📋', '🎨', '💡', '📝', '🎯', '🚀', '⭐', '🔥', '💼', '🎪'];
 
-    // Clear existing options except the first placeholder
-    boardSelector.innerHTML = '<option value="">Select Board</option>';
+function renderBoardList() {
+    const boardList = document.getElementById('boardList');
+    if (!boardList) return;
+
+    boardList.innerHTML = '';
 
     if (AppState.boardMetadata.length === 0) {
+        boardList.innerHTML = '<p style="text-align: center; color: var(--text-dim); font-size: 12px; padding: 20px 0;">No boards yet</p>';
         return;
     }
 
-    AppState.boardMetadata.forEach(meta => {
-        const option = document.createElement('option');
-        option.value = meta.id;
-        option.textContent = meta.title || "Untitled";
+    AppState.boardMetadata.forEach((meta, index) => {
+        const boardItem = document.createElement('button');
+        boardItem.className = 'board-item';
         if (meta.id === AppState.activeBoardId) {
-            option.selected = true;
+            boardItem.classList.add('active');
         }
-        boardSelector.appendChild(option);
+
+        const icon = document.createElement('div');
+        icon.className = 'board-icon';
+        icon.textContent = boardIcons[index % boardIcons.length];
+
+        const info = document.createElement('div');
+        info.className = 'board-info';
+
+        const name = document.createElement('p');
+        name.className = 'board-name';
+        name.textContent = meta.title || 'Untitled';
+
+        info.appendChild(name);
+        boardItem.appendChild(icon);
+        boardItem.appendChild(info);
+
+        boardItem.onclick = () => {
+            BoardManager.loadBoard(meta.id);
+        };
+
+        boardList.appendChild(boardItem);
     });
 }
 

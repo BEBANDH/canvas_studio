@@ -130,6 +130,16 @@ function checkOverlap(rect1, rect2) {
         rect1.top >= rect2.bottom);
 }
 
+function clearSelection() {
+    clearMultiSelect();
+    AppState.selectedId = null;
+    document.querySelectorAll('.selected').forEach(el => el.classList.remove('selected'));
+}
+
+function getSelectedElements() {
+    return document.querySelectorAll('.canvas-element.selected, .canvas-element.multi-selected');
+}
+
 // Export functions
 window.SelectionManager = {
     clearMultiSelect,
@@ -137,5 +147,7 @@ window.SelectionManager = {
     removeFromSelection,
     updateSelectionCount,
     startSelectionBox,
-    checkOverlap
+    checkOverlap,
+    clearSelection,
+    getSelectedElements
 };

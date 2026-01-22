@@ -174,6 +174,8 @@ function setupEventListeners() {
         }
     });
 
+    // Shapes and keyboard shortcuts removed
+
     // New Board
     document.getElementById('newBoardBtn').onclick = () => {
         const id = 'b' + Date.now();
@@ -184,14 +186,21 @@ function setupEventListeners() {
         BoardManager.loadBoard(id);
     };
 
-    // Board Selector
-    const boardSelector = document.getElementById('boardSelector');
-    if (boardSelector) {
-        boardSelector.onchange = (e) => {
-            const selectedId = e.target.value;
-            if (selectedId) {
-                BoardManager.loadBoard(selectedId);
-            }
+    // Board Search
+    const boardSearch = document.getElementById('boardSearch');
+    if (boardSearch) {
+        boardSearch.oninput = (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            const boardItems = document.querySelectorAll('.board-item');
+
+            boardItems.forEach(item => {
+                const boardName = item.querySelector('.board-name').textContent.toLowerCase();
+                if (boardName.includes(searchTerm)) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
         };
     }
 
@@ -247,40 +256,66 @@ function setupEventListeners() {
     // Paste image with compression
     window.addEventListener('paste', async (e) => {
         const item = Array.from(e.clipboardData.items).find(x => x.type.startsWith('image'));
-        if (item) {
-            const reader = new FileReader();
-            reader.onload = async (ev) => {
-                const compressed = await SettingsManager.compressImage(ev.target.result);
+        if (!item) return;
 
-                const data = {
-                    id: Date.now(),
-                    type: 'img',
-                    content: compressed,
-                    x: 50,
-                    y: 50,
-                    w: 250,
-                    h: 180
-                };
-                ElementManager.addElement(data);
+        e.preventDefault();
+        e.stopPropagation();
+
+        const reader = new FileReader();
+        reader.onload = async (ev) => {
+            const compressed = await SettingsManager.compressImage(ev.target.result);
+
+            const canvas = document.getElementById('canvas');
+            const rect = canvas.getBoundingClientRect();
+
+            const startX = canvas.scrollLeft + rect.width / 2 - 125;
+            const startY = canvas.scrollTop + rect.height / 2 - 90;
+            const w = 250;
+            const h = 180;
+
+            function overlaps(x, y, w, h, el) {
+                const ex = parseFloat(el.dataset.x) || 0;
+                const ey = parseFloat(el.dataset.y) || 0;
+                const ew = parseInt(el.style.width) || el.clientWidth || 0;
+                const eh = parseInt(el.style.height) || el.clientHeight || 0;
+                return !(x + w <= ex || ex + ew <= x || y + h <= ey || ey + eh <= y);
+            }
+
+            function findFreeSpot() {
+                const elements = Array.from(canvas.querySelectorAll('.canvas-element'));
+                let x = startX;
+                let y = startY;
+                const step = 30;
+                let attempts = 0;
+
+                while (attempts < 200) {
+                    const collision = elements.some(el => overlaps(x, y, w, h, el));
+                    if (!collision) break;
+                    x += step;
+                    y += step;
+                    attempts++;
+                }
+                return { x, y };
+            }
+
+            const pos = findFreeSpot();
+
+            const data = {
+                id: Date.now(),
+                type: 'img',
+                content: compressed,
+                x: pos.x,
+                y: pos.y,
+                w,
+                h
             };
-            reader.readAsDataURL(item.getAsFile());
-        }
+
+            ElementManager.addElement(data);
+        };
+        reader.readAsDataURL(item.getAsFile());
     });
 
-    // Delete selected element(s)
-    window.onkeydown = (e) => {
-        if ((e.key === 'Delete' || e.key === 'Backspace') && (AppState.selectedId || AppState.selectedElements.length > 0)) {
-            if (document.activeElement.contentEditable === "true") return;
-            ElementManager.removeSelectedElements();
-        }
-
-        // Escape to clear selection
-        if (e.key === 'Escape') {
-            SelectionManager.clearMultiSelect();
-            AppState.selectedId = null;
-            document.querySelectorAll('.selected').forEach(el => el.classList.remove('selected'));
-        }
-    };
+    // Keyboard shortcut handlers removed
 
     // Export/Import
     document.getElementById('exportJsonBtn').onclick = () => StorageManager.exportJSON(AppState.activeBoard);

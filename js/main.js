@@ -22,6 +22,7 @@ function init() {
         BoardManager.loadBoard(AppState.activeBoardId);
         EventManager.setupEventListeners();
         EventManager.setupHeaderAutoHide();
+
         console.log("Canvas Studio Initialized Successfully");
     } catch (err) {
         console.error("Initialization error:", err);

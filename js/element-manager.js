@@ -39,6 +39,15 @@ function createElementDOM(data) {
             el.dataset.color = data.color;
         }
 
+        // Apply shape
+        if (data.shape) {
+            el.classList.add(`shape-${data.shape}`);
+            el.dataset.shape = data.shape;
+        } else {
+            el.classList.add('shape-rectangle');
+            el.dataset.shape = 'rectangle';
+        }
+
         // Add color picker button
         const colorBtn = document.createElement('div');
         colorBtn.className = 'color-picker-btn';
@@ -148,6 +157,23 @@ function updateSaveStatus() {
     }
 }
 
+function renderElements() {
+    const canvas = document.getElementById('canvas');
+    const elements = canvas.querySelectorAll('.canvas-element');
+    elements.forEach(el => el.remove());
+
+    if (AppState.activeBoard && AppState.activeBoard.elements) {
+        AppState.activeBoard.elements.forEach(data => {
+            const domElement = createElementDOM(data);
+            canvas.appendChild(domElement);
+        });
+    }
+}
+
+function deleteElement(id) {
+    removeElement(id);
+}
+
 // Export functions
 window.ElementManager = {
     createElementDOM,
@@ -158,5 +184,7 @@ window.ElementManager = {
     duplicateSelectedElements,
     bringForward,
     sendBackward,
-    updateSaveStatus
+    updateSaveStatus,
+    renderElements,
+    deleteElement
 };

@@ -9,7 +9,8 @@
     <title>Canvas Studio - Visual Moodboard Creator</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="context-menu.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -18,49 +19,54 @@
 <body>
     <div class="app-container">
         <aside class="sidebar">
-            <div class="sidebar-content">
+            <div class="sidebar-header">
                 <div class="app-branding">
                     <div class="app-icon">🎨</div>
-                    <h2>Canvas</h2>
+                    <div class="app-info">
+                        <h2>Canvas Studio</h2>
+                        <p class="project-subtitle">Moodboard Creator</p>
+                    </div>
                 </div>
+            </div>
 
-                <div class="sidebar-actions">
-                    <button id="exportJsonBtn" class="sidebar-btn" title="Export JSON">
-                        <span class="btn-icon">�</span>
-                        <span class="btn-label">Export</span>
-                    </button>
-                    <button id="importBtn" class="sidebar-btn" title="Import JSON">
-                        <span class="btn-icon">�</span>
-                        <span class="btn-label">Import</span>
-                    </button>
-                    <input type="file" id="fileInput" hidden accept=".json">
-                    <button id="exportPdfBtn" class="sidebar-btn" title="Export PDF">
-                        <span class="btn-icon">📸</span>
-                        <span class="btn-label">PNG</span>
-                    </button>
-                    <button id="themeToggleBtn" class="sidebar-btn theme-btn" title="Toggle Theme">
-                        <span class="btn-icon" id="themeIcon">🌙</span>
-                        <span class="btn-label" id="themeLabel">Dark</span>
-                    </button>
+            <div class="sidebar-main">
+                <div class="boards-section">
+                    <div class="section-header">
+                        <span class="section-title">Boards</span>
+                        <button id="newBoardBtn" class="add-board-btn" title="New Board">+</button>
+                    </div>
+                    <div id="boardList" class="board-list"></div>
+                </div>
+            </div>
+
+            <div class="sidebar-footer">
+                <div class="search-container">
+                    <span class="search-icon"><i class="fas fa-search"></i></span>
+                    <input type="text" id="boardSearch" class="search-input" placeholder="Search boards...">
                 </div>
             </div>
         </aside>
 
         <main class="workspace">
             <header class="workspace-header">
-                <button id="newBoardBtn" class="header-btn" title="New Board">+</button>
-
-                <select id="boardSelector" class="board-selector">
-                    <option value="">Select Board</option>
-                </select>
-
                 <div class="title-group">
                     <h1 id="activeBoardTitle">Untitled Board</h1>
-                    <button id="renameBoardBtn" class="header-icon-btn" title="Rename Board">✎</button>
-                    <button id="deleteBoardBtn" class="header-icon-btn delete-btn" title="Delete Board">🗑</button>
+                    <button id="renameBoardBtn" class="header-icon-btn" title="Rename Board"><i
+                            class="fas fa-pen"></i></button>
+                    <button id="deleteBoardBtn" class="header-icon-btn delete-btn" title="Delete Board"><i
+                            class="fas fa-trash"></i></button>
                 </div>
 
                 <div class="controls-group">
+                    <button id="exportJsonBtn" class="header-icon-btn" title="Export JSON"><i
+                            class="fas fa-download"></i></button>
+                    <button id="importBtn" class="header-icon-btn" title="Import JSON"><i
+                            class="fas fa-upload"></i></button>
+                    <input type="file" id="fileInput" hidden accept=".json">
+                    <button id="exportPdfBtn" class="header-icon-btn" title="Export as PNG"><i
+                            class="fas fa-image"></i></button>
+                    <button id="themeToggleBtn" class="header-icon-btn theme-btn" title="Toggle Theme"><i
+                            class="fas fa-moon" id="themeIcon"></i></button>
                     <div class="status-indicator" id="saveStatus">Synced</div>
                 </div>
             </header>
@@ -80,6 +86,7 @@
         <div class="color-option" data-color="green" style="background: #d1fae5;" title="Green"></div>
         <div class="color-option" data-color="pink" style="background: #fce7f3;" title="Pink"></div>
         <div class="color-option" data-color="orange" style="background: #fed7aa;" title="Orange"></div>
+        <div class="color-option" data-color="bw" style="background: #000000;" title="Black/White"></div>
     </div>
 
     <!-- Context Menu -->

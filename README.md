@@ -80,13 +80,9 @@ python -m http.server 8000
 | Key | Action |
 |-----|--------|
 | `A` | Toggle Arrow Mode |
-| `T` | New Text Element |
 | `I` | Upload Image |
 | `Del` / `Backspace` | Delete selected |
-| `Ctrl + D` | Duplicate selected |
 | `Ctrl + A` | Select All |
-| `Ctrl + Z` | Undo |
-| `Ctrl + Y` | Redo |
 | `Arrow Keys` | Nudge element (10px) |
 | `Esc` | Deselect All |
 

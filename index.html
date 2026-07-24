@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎨</text></svg>">
+    <title>Canvas Studio - Visual Moodboard & Diagram Creator</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/canvas.css">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Floating Header -->
+        <header class="top-header">
+            <div class="header-left">
+                <button class="icon-btn" id="toggleSidebarBtn" title="Open Boards Drawer">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="brand-badge">
+                    <span class="brand-icon">🎨</span>
+                    <input type="text" id="boardTitleInput" class="board-title-input" value="Untitled Board" title="Click to rename board">
+                </div>
+            </div>
+
+            <div class="header-right">
+                <span class="status-pill saved" id="saveStatus">Saved</span>
+                <div id="authProfileContainer"></div>
+                <button class="icon-btn" id="headerShortcutsBtn" title="Keyboard Shortcuts (?)"><i class="fas fa-question-circle"></i></button>
+                <button class="icon-btn" id="headerTemplateBtn" title="Templates Gallery (📑)"><i class="fas fa-file-alt"></i></button>
+                <button class="icon-btn" id="exportJsonBtn" title="Export JSON"><i class="fas fa-download"></i></button>
+                <button class="icon-btn" id="importJsonBtn" title="Import JSON"><i class="fas fa-upload"></i></button>
+                <input type="file" id="importFileInput" hidden accept=".json">
+                <button class="icon-btn" id="exportSvgHeaderBtn" title="Export Vector SVG"><i class="fas fa-file-code"></i></button>
+                <button class="icon-btn" id="exportPngBtn" title="Export PNG"><i class="fas fa-image"></i></button>
+            </div>
+        </header>
+
+        <!-- Sidebar Drawer -->
+        <aside id="sidebarDrawer" class="sidebar-drawer"></aside>
+
+        <!-- Infinite Canvas Viewport -->
+        <main id="canvasViewport" class="canvas-viewport">
+            <div id="canvasWorld" class="canvas-world">
+                <svg id="svgOverlay" class="svg-overlay"></svg>
+            </div>
+        </main>
+
+        <!-- Multi-Selection Align Bar & Selected Arrow Toolbar -->
+        <div id="alignToolbarContainer"></div>
+        <div id="arrowToolbarContainer"></div>
+
+        <!-- Floating Dock Toolbar -->
+        <div id="toolbarContainer"></div>
+
+        <!-- Bottom-Right Zoom Percentage Controls Widget -->
+        <div id="zoomWidgetContainer"></div>
+
+        <!-- Template Blueprint Gallery Modal -->
+        <div id="templateModalContainer"></div>
+
+        <!-- Keyboard Shortcuts Toolkit Modal -->
+        <div id="shortcutsModalContainer"></div>
+
+        <!-- Right-Click Context Menu -->
+        <div id="contextMenu" class="context-menu hidden"></div>
+    </div>
+
+    <!-- ES Module Application Bootstrapper -->
+    <script type="module" src="src/main.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,266 @@
+/* Canvas Layering, Node Styling, Resize Handles, SVG Overlay */
+
+.canvas-viewport {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: var(--bg-primary);
+  background-image: radial-gradient(var(--grid-color) 1.5px, transparent 1.5px);
+  background-size: var(--grid-size) var(--grid-size);
+  cursor: default;
+}
+
+.canvas-viewport.panning {
+  cursor: grab !important;
+}
+
+.canvas-viewport.panning:active {
+  cursor: grabbing !important;
+}
+
+.canvas-world {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  transform-origin: 0 0;
+  will-change: transform;
+}
+
+/* SVG Arrow & Snap Line Overlay Layer */
+.svg-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100000px;
+  height: 100000px;
+  pointer-events: none;
+  overflow: visible;
+  z-index: 1;
+}
+
+.arrow-path {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 2.5px;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  pointer-events: stroke;
+  cursor: pointer;
+  transition: stroke 150ms ease, stroke-width 150ms ease;
+}
+
+.arrow-path:hover, .arrow-path.selected {
+  stroke: #a855f7;
+  stroke-width: 4px;
+}
+
+.arrow-text-label {
+  font-size: 11px;
+  font-weight: 600;
+  fill: var(--text-primary);
+  pointer-events: none;
+}
+
+/* Magnetic Alignment Snap Lines */
+.snap-line {
+  stroke: #ec4899;
+  stroke-width: 1px;
+  stroke-dasharray: 4 4;
+  pointer-events: none;
+}
+
+/* Canvas Element Nodes */
+.canvas-node {
+  position: absolute;
+  min-width: 60px;
+  min-height: 40px;
+  z-index: 2;
+  cursor: move;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.canvas-node.locked {
+  cursor: default !important;
+  opacity: 0.9;
+}
+
+.lock-badge {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 20px;
+  height: 20px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.65rem;
+  color: var(--text-secondary);
+  z-index: 12;
+}
+
+.canvas-node:hover {
+  border-color: var(--border-medium);
+}
+
+.canvas-node.selected {
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 0 2px var(--accent-light);
+}
+
+/* Image Node Special Thin Border Styling */
+.canvas-node[data-type="image"] {
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  overflow: visible;
+}
+
+.canvas-node[data-type="image"].selected {
+  border-color: var(--accent) !important;
+}
+
+.canvas-node[data-type="image"] .node-shape-bg {
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+/* Inner Shape Background Container (Holds colors & clip-paths cleanly) */
+.node-shape-bg {
+  width: 100%;
+  height: 100%;
+  background: var(--node-default);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  transition: background-color 150ms ease;
+}
+
+/* 12 Aesthetic Pastel Color Palettes */
+.node-shape-bg[data-color="default"] { background: var(--node-default); color: var(--text-primary); }
+.node-shape-bg[data-color="yellow"]  { background: #fef9c3; color: #334155; }
+.node-shape-bg[data-color="purple"]  { background: #f3e8ff; color: #334155; }
+.node-shape-bg[data-color="blue"]    { background: #dbeafe; color: #334155; }
+.node-shape-bg[data-color="green"]   { background: #dcfce7; color: #334155; }
+.node-shape-bg[data-color="pink"]    { background: #fce7f3; color: #334155; }
+.node-shape-bg[data-color="orange"]  { background: #ffedd5; color: #334155; }
+.node-shape-bg[data-color="teal"]    { background: #ccfbf1; color: #334155; }
+.node-shape-bg[data-color="violet"]  { background: #e0e7ff; color: #334155; }
+.node-shape-bg[data-color="coral"]   { background: #ffe4e6; color: #334155; }
+.node-shape-bg[data-color="sand"]    { background: #f5f5f4; color: #334155; }
+.node-shape-bg[data-color="bw"]      { background: #18181b; color: #f8fafc; }
+
+/* Node Content Types */
+.node-content {
+  width: 100%;
+  height: 100%;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  outline: none;
+  word-break: break-word;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  color: inherit;
+}
+
+.node-content[contenteditable="true"] {
+  cursor: text;
+  user-select: text;
+}
+
+.node-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: calc(var(--radius-md) - 2px);
+  pointer-events: none;
+}
+
+/* Custom Shape Mask/Clip Classes */
+.shape-rectangle { border-radius: var(--radius-md); }
+.shape-circle { border-radius: var(--radius-full); }
+.shape-diamond { clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); }
+.shape-triangle { clip-path: polygon(50% 0%, 100% 100%, 0% 100%); }
+.shape-hexagon { clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%); }
+.shape-star { clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%); }
+
+/* Anchor Snap Points for Arrows */
+.node-anchor {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: var(--accent);
+  border: 2px solid #ffffff;
+  border-radius: var(--radius-full);
+  z-index: 10;
+  cursor: crosshair;
+  opacity: 0;
+  transition: opacity var(--transition-fast), transform var(--transition-fast);
+}
+
+.arrow-mode .node-anchor,
+.canvas-node:hover .node-anchor {
+  opacity: 1;
+}
+
+.node-anchor:hover {
+  transform: scale(1.3);
+}
+
+.anchor-top    { top: -6px; left: 50%; transform: translateX(-50%); }
+.anchor-bottom { bottom: -6px; left: 50%; transform: translateX(-50%); }
+.anchor-left   { left: -6px; top: 50%; transform: translateY(-50%); }
+.anchor-right  { right: -6px; top: 50%; transform: translateY(-50%); }
+
+/* 8 Directional Resize Handles */
+.resize-handle {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: #ffffff;
+  border: 2px solid var(--accent);
+  border-radius: 2px;
+  z-index: 8;
+  display: none;
+}
+
+.canvas-node.selected:not(.locked) .resize-handle {
+  display: block;
+}
+
+.handle-nw { top: -6px; left: -6px; cursor: nwse-resize; }
+.handle-n  { top: -6px; left: 50%; transform: translateX(-50%); cursor: ns-resize; }
+.handle-ne { top: -6px; right: -6px; cursor: nesw-resize; }
+.handle-e  { top: 50%; right: -6px; transform: translateY(-50%); cursor: ew-resize; }
+.handle-se { bottom: -6px; right: -6px; cursor: nwse-resize; }
+.handle-s  { bottom: -6px; left: 50%; transform: translateX(-50%); cursor: ns-resize; }
+.handle-sw { bottom: -6px; left: -6px; cursor: nesw-resize; }
+.handle-w  { top: 50%; left: -6px; transform: translateY(-50%); cursor: ew-resize; }
+
+/* Selection Marquee Box */
+.selection-marquee {
+  position: absolute;
+  border: 1px dashed var(--accent);
+  background: rgba(99, 102, 241, 0.08);
+  pointer-events: none;
+  z-index: 99;
+}
